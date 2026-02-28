@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💜 다린크래프트 자수 도안 메이커</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>
+        /* 기본 테마 설정 */
+        :root {
+            --primary: #9e7bb5;
+            --primary-light: #c7a4d6;
+            --primary-dark: #8e62a8;
+            --bg-color: #f4ebf8;
+            --panel-bg: #ffffff;
+            --text-main: #4a3b52;
+            --text-muted: #887a8f;
+            --border-color: #d5b8e0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 1px 1px 2px rgba(142, 98, 168, 0.15);
+        }
+
+        /* --- 상단 컨트롤 패널 --- */
+        .controls {
+            background-color: var(--panel-bg);
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(142, 98, 168, 0.08);
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1200px; 
+            box-sizing: border-box;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload-label {
+            background-color: var(--bg-color);
+            color: var(--primary-dark);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .file-upload-label:hover {
+            background-color: #ebd9f2;
+        }
+
+        #fileName {
+            font-size: 14px;
+            color: var(--text-muted);
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(158, 123, 181, 0.1);
+        }
+        
+        input[type="checkbox"] {
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* 버튼 공통 디자인 */
+        button {
+            font-family: inherit;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        button.primary-btn {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            font-size: 15px;
+            margin-left: auto;
+            box-shadow: 0 4px 10px rgba(158, 123, 181, 0.3);
+        }
+
+        button.primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(158, 123, 181, 0.4);
+        }
+
+        button.toggle-btn {
+            background-color: white;
+            color: var(--primary-dark);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        button.toggle-btn:hover {
+            background-color: var(--bg-color);
+        }
+
+        button.toggle-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* --- 메인 레이아웃 --- */
+        .main-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+
+        /* 왼쪽 캔버스 영역 */
+        .canvas-container {
+            flex: 1;
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(142, 98, 168, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 400px;
+            min-width: 0;
+        }
+
+        .canvas-toolbar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--bg-color);
+            padding-bottom: 15px;
+        }
+
+        .canvas-wrapper {
+            width: 100%;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex: 1;
+        }
+
+        #resultCanvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: max-width 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        #resultCanvas.zoomed-in {
+            max-width: none;
+        }
+
+        /* 오른쪽 사이드바 */
+        .legend-wrapper {
+            width: 300px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-container {
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(142, 98, 168, 0.08);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .legend-container h2 {
+            color: var(--primary-dark);
+            margin-top: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .color-item:hover {
+            background-color: var(--bg-color);
+        }
+
+        .color-box {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+            margin-right: 12px;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
+            flex-shrink: 0; /* 박스가 찌그러지지 않게 */
+        }
+
+        .color-info {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .color-no {
+            font-weight: 700;
+            color: var(--primary);
+            margin-right: 6px;
+            display: inline-block;
+            min-width: 35px;
+        }
+        
+        .color-eng {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        /* 애니메이션 */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideRightFade {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-canvas { animation: slideUpFade 0.5s ease forwards; }
+        .animate-sidebar { animation: slideRightFade 0.5s ease forwards; }
+    </style>
+</head>
+<body>
+
+    <h1>💜 자수 도안 메이커</h1>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label class="file-upload-label">
+                📁 이미지 선택
+                <input type="file" id="imageInput" accept="image/*" onchange="updateFileName()">
+            </label>
+            <span id="fileName">선택된 파일 없음</span>
+        </div>
+
+        <div class="control-group">
+            <label>📏 가로 격자:</label>
+            <input type="number" id="gridSize" value="40" min="10" max="200">
+        </div>
+        
+        <div class="control-group" style="background-color: var(--bg-color); padding: 5px 12px; border-radius: 8px;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <input type="checkbox" id="limitColorsCheck" onchange="toggleColorLimitInput()"> 
+                컬러 수 제한
+            </label>
+            <span id="colorLimitWrapper" style="display: none;">
+                <input type="number" id="colorLimit" value="15" min="5" max="145" style="width: 50px;"> 개
+            </span>
+        </div>
+
+        <button class="primary-btn" onclick="processImage()">도안 생성하기 ✨</button>
+    </div>
+
+    <div class="main-container">
+        <div class="canvas-container" id="canvasContainer">
+            <div class="canvas-toolbar" id="canvasToolbar" style="display: none;">
+                <button class="toggle-btn" id="originalViewBtn" onclick="toggleOriginalView()">🖼️ 원본 보기</button>
+                <button class="toggle-btn" id="numberBtn" onclick="toggleNumbers()">🔢 번호 끄기</button>
+                <button class="toggle-btn" id="zoomBtn" onclick="toggleZoom()">🔍 원본 크기로 보기</button>
+            </div>
+            
+            <p id="placeholder" style="color:var(--text-muted); text-align:center; margin-top:150px; font-weight: 500;">
+                이미지를 업로드하고 생성 버튼을 눌러주세요 🎨
+            </p>
+            
+            <div class="canvas-wrapper">
+                <canvas id="resultCanvas" style="display: none;"></canvas>
+            </div>
+        </div>
+
+        <div class="legend-wrapper" id="legendWrapper" style="display: none;">
+            <button class="toggle-btn" id="toggleLegendBtn" onclick="toggleLegend()" style="width: 100%; text-align: left; border-color: transparent; background-color: var(--bg-color);">
+                컬러 목록 닫기 ❯
+            </button>
+            <div class="legend-container" id="legendContainer">
+                <h2>🎨 사용된 컬러 (<span id="colorCount">0</span>개)</h2>
+                <div id="colorList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 새로 업데이트된 145번까지의 풀 데이터베이스
+        const darinThreads = [
+            {no: 1, rgb: [255, 255, 255], hex: "#FFFFFF", eng: "Pure White", name: "순백색"},
+            {no: 2, rgb: [191, 149, 255], hex: "#BF95FF", eng: "Light Lavender", name: "연라벤더"},
+            {no: 3, rgb: [170, 85, 254], hex: "#AA55FE", eng: "Medium Purple", name: "중간 보라"},
+            {no: 4, rgb: [106, 21, 170], hex: "#6A15AA", eng: "Deep Violet", name: "진보라"},
+            {no: 5, rgb: [85, 21, 128], hex: "#551580", eng: "Dark Purple", name: "진포도색"},
+            {no: 6, rgb: [128, 85, 191], hex: "#8055BF", eng: "Amethyst", name: "자수정색"},
+            {no: 7, rgb: [64, 0, 149], hex: "#400095", eng: "Deep Indigo", name: "진남색"},
+            {no: 8, rgb: [106, 64, 106], hex: "#6A406A", eng: "Plum Gray", name: "자두 회색"},
+            {no: 9, rgb: [0, 254, 254], hex: "#00FEFE", eng: "Cyan", name: "청록색"},
+            {no: 10, rgb: [21, 170, 212], hex: "#15AAD4", eng: "Sky Blue", name: "스카이 블루"},
+            {no: 11, rgb: [0, 170, 170], hex: "#00AAAA", eng: "Dark Teal", name: "다크 틸"},
+            {no: 12, rgb: [255, 254, 254], hex: "#FFFEFE", eng: "Soft White", name: "소프트 화이트"},
+            {no: 13, rgb: [255, 212, 212], hex: "#FFD4D4", eng: "Pale Pink", name: "연분홍색"},
+            {no: 14, rgb: [255, 149, 191], hex: "#FF95BF", eng: "Bubblegum Pink", name: "진한 분홍"},
+            {no: 15, rgb: [254, 128, 170], hex: "#FE80AA", eng: "Rose Pink", name: "장미 분홍"},
+            {no: 16, rgb: [255, 149, 212], hex: "#FF95D4", eng: "Orchid Pink", name: "오키드 핑크"},
+            {no: 17, rgb: [255, 64, 212], hex: "#FF40D4", eng: "Hot Pink", name: "핫 핑크"},
+            {no: 18, rgb: [212, 85, 149], hex: "#D45595", eng: "Raspberry", name: "산딸기색"},
+            {no: 19, rgb: [212, 21, 128], hex: "#D41580", eng: "Magenta", name: "마젠타"},
+            {no: 20, rgb: [170, 42, 106], hex: "#AA2A6A", eng: "Burgundy Pink", name: "자주색"},
+            {no: 21, rgb: [212, 170, 191], hex: "#D4AABF", eng: "Ash Pink", name: "애쉬 핑크"},
+            {no: 22, rgb: [149, 85, 128], hex: "#955580", eng: "Antique Rose", name: "엔틱 로즈"},
+            {no: 23, rgb: [85, 0, 64], hex: "#550040", eng: "Dark Wine", name: "진와인색"},
+            {no: 24, rgb: [255, 255, 212], hex: "#FFFFD4", eng: "Cream", name: "크림색"},
+            {no: 25, rgb: [255, 254, 149], hex: "#FFFE95", eng: "Pastel Yellow", name: "파스텔 노랑"},
+            {no: 26, rgb: [191, 254, 170], hex: "#BFFEAA", eng: "Mint Green", name: "민트 그린"},
+            {no: 27, rgb: [255, 254, 212], hex: "#FFFED4", eng: "Ivory White", name: "아이보리 화이트"},
+            {no: 28, rgb: [254, 212, 191], hex: "#FED4BF", eng: "Apricot", name: "살구색"},
+            {no: 29, rgb: [254, 170, 170], hex: "#FEAAAA", eng: "Coral Pink", name: "코랄 핑크"},
+            {no: 30, rgb: [149, 0, 0], hex: "#950000", eng: "Pure Red", name: "진빨강"},
+            {no: 31, rgb: [128, 42, 42], hex: "#802A2A", eng: "Russet", name: "갈적색"},
+            {no: 32, rgb: [128, 0, 0], hex: "#800000", eng: "Maroon", name: "마룬"},
+            {no: 33, rgb: [106, 0, 0], hex: "#6A0000", eng: "Dark Red", name: "어두운 빨강"},
+            {no: 34, rgb: [64, 0, 64], hex: "#400040", eng: "Dark Deep Purple", name: "매우 어두운 보라"},
+            {no: 35, rgb: [212, 254, 255], hex: "#D4FEFF", eng: "Pale Blue", name: "연하늘색"},
+            {no: 36, rgb: [128, 191, 255], hex: "#80BFFF", eng: "Azure", name: "담청색"},
+            {no: 37, rgb: [42, 191, 255], hex: "#2ABFFF", eng: "Bright Sky Blue", name: "밝은 하늘색"},
+            {no: 38, rgb: [64, 149, 255], hex: "#4095FF", eng: "Cornflower Blue", name: "수레국화색"},
+            {no: 39, rgb: [21, 106, 212], hex: "#156AD4", eng: "Royal Blue", name: "로열 블루"},
+            {no: 40, rgb: [0, 85, 191], hex: "#0055BF", eng: "Ocean Blue", name: "깊은 바다색"},
+            {no: 41, rgb: [42, 64, 128], hex: "#2A4080", eng: "Denim Blue", name: "데님 블루"},
+            {no: 42, rgb: [42, 64, 85], hex: "#2A4055", eng: "Steel Blue", name: "스틸 블루"},
+            {no: 43, rgb: [0, 0, 42], hex: "#00002A", eng: "Midnight Blue", name: "미드나잇 블루"},
+            {no: 44, rgb: [85, 218, 170], hex: "#55DAAA", eng: "Seafoam Green", name: "거품 바다색"},
+            {no: 45, rgb: [106, 128, 149], hex: "#6A8095", eng: "Slate Gray Blue", name: "슬레이트 그레이"},
+            {no: 46, rgb: [64, 106, 128], hex: "#406A80", eng: "Muted Teal", name: "차분한 틸"},
+            {no: 47, rgb: [85, 85, 106], hex: "#55556A", eng: "Dusky Blue", name: "어스름한 청색"},
+            {no: 48, rgb: [42, 42, 85], hex: "#2A2A55", eng: "Dark Navy", name: "진남색"},
+            {no: 49, rgb: [21, 21, 64], hex: "#151540", eng: "Deep Navy", name: "매우 어두운 남색"},
+            {no: 50, rgb: [64, 0, 212], hex: "#4000D4", eng: "Vivid Violet", name: "선명한 제비꽃색"},
+            {no: 51, rgb: [42, 42, 128], hex: "#2A2A80", eng: "Deep Blue", name: "진청색"},
+            {no: 52, rgb: [21, 170, 64], hex: "#15AA40", eng: "Grass Green", name: "풀색"},
+            {no: 53, rgb: [0, 149, 64], hex: "#009540", eng: "Forest Green", name: "숲색"},
+            {no: 54, rgb: [128, 149, 85], hex: "#809555", eng: "Olive Green", name: "올리브 그린"},
+            {no: 55, rgb: [85, 106, 42], hex: "#556A2A", eng: "Moss Green", name: "이끼색"},
+            {no: 56, rgb: [42, 85, 42], hex: "#2A552A", eng: "Dark Forest", name: "진한 숲색"},
+            {no: 57, rgb: [21, 64, 21], hex: "#154015", eng: "Hunter Green", name: "헌터 그린"},
+            {no: 58, rgb: [0, 170, 64], hex: "#00AA40", eng: "Emerald Green", name: "에메랄드 그린"},
+            {no: 59, rgb: [42, 106, 64], hex: "#2A6A40", eng: "Pine Green", name: "소나무색"},
+            {no: 60, rgb: [254, 254, 191], hex: "#FEFED4", eng: "Pale Lemon", name: "연노랑색"},
+            {no: 61, rgb: [106, 106, 85], hex: "#6A6A55", eng: "Khaki", name: "카키색"},
+            {no: 62, rgb: [106, 106, 64], hex: "#6A6A40", eng: "Olive Brown", name: "올리브 갈색"},
+            {no: 63, rgb: [255, 106, 85], hex: "#FF6A55", eng: "Vermilion", name: "주황빛 빨강"},
+            {no: 64, rgb: [255, 106, 0], hex: "#FF6A00", eng: "Bright Orange", name: "선명한 주황"},
+            {no: 65, rgb: [255, 64, 42], hex: "#FF402A", eng: "Scarlet", name: "다홍색"},
+            {no: 66, rgb: [254, 0, 0], hex: "#FE0000", eng: "Vivid Red", name: "선명한 빨강"},
+            {no: 67, rgb: [212, 21, 0], hex: "#D41500", eng: "Brick Red", name: "벽돌색"},
+            {no: 68, rgb: [212, 0, 0], hex: "#D40000", eng: "Classic Red", name: "클래식 레드"},
+            {no: 69, rgb: [170, 0, 0], hex: "#AA0000", eng: "Dark Brick", name: "어두운 벽돌색"},
+            {no: 70, rgb: [212, 212, 212], hex: "#D4D4D4", eng: "Light Gray", name: "밝은 회색"},
+            {no: 71, rgb: [170, 170, 170], hex: "#AAAAAA", eng: "Silver", name: "은회색"},
+            {no: 72, rgb: [85, 85, 85], hex: "#555555", eng: "Medium Gray", name: "중간 회색"},
+            {no: 73, rgb: [149, 149, 149], hex: "#959595", eng: "Cool Gray", name: "쿨 그레이"},
+            {no: 74, rgb: [106, 106, 106], hex: "#6A6A6A", eng: "Slate Gray", name: "슬레이트 그레이"},
+            {no: 75, rgb: [64, 64, 64], hex: "#404040", eng: "Charcoal", name: "차콜"},
+            {no: 76, rgb: [255, 255, 154], hex: "#FFFF9A", eng: "Lemon Chiffon", name: "레몬 쉬폰"},
+            {no: 77, rgb: [254, 254, 212], hex: "#FEFED4", eng: "Antique White", name: "엔틱 화이트"},
+            {no: 78, rgb: [212, 170, 149], hex: "#D4AAB5", eng: "Rosy Brown", name: "장미빛 갈색"},
+            {no: 79, rgb: [254, 254, 254], hex: "#FEFEFE", eng: "Ghost White", name: "고스트 화이트"},
+            {no: 80, rgb: [21, 212, 191], hex: "#15D4BF", eng: "Turquoise", name: "터쿼이즈"},
+            {no: 81, rgb: [212, 191, 170], hex: "#D4BFAB", eng: "Sand Beige", name: "모래색 베이지"},
+            {no: 82, rgb: [254, 212, 149], hex: "#FED495", eng: "Peach", name: "복숭아색"},
+            {no: 83, rgb: [191, 170, 128], hex: "#BFAA80", eng: "Tan", name: "황갈색"},
+            {no: 84, rgb: [254, 170, 42], hex: "#FEAA2A", eng: "Orange Gold", name: "주황빛 금색"},
+            {no: 85, rgb: [254, 149, 42], hex: "#FE952A", eng: "Amber", name: "호박색"},
+            {no: 86, rgb: [212, 149, 0], hex: "#D49500", eng: "Goldenrod", name: "금홍색"},
+            {no: 87, rgb: [255, 254, 21], hex: "#FFFE15", eng: "Yellow", name: "노란색"},
+            {no: 88, rgb: [255, 212, 0], hex: "#FFD400", eng: "Deep Yellow", name: "진노랑"},
+            {no: 89, rgb: [255, 170, 0], hex: "#FF9500", eng: "Chrome Orange", name: "크롬 주황"},
+            {no: 90, rgb: [254, 106, 0], hex: "#FE6A00", eng: "Cadmium Orange", name: "카드뮴 주황"},
+            {no: 91, rgb: [255, 254, 0], hex: "#FFFE00", eng: "Neon Yellow", name: "형광 노랑"},
+            {no: 92, rgb: [254, 149, 21], hex: "#FE9515", eng: "Pumpkin", name: "호박 주황"},
+            {no: 93, rgb: [191, 106, 42], hex: "#BF6A2A", eng: "Sienna", name: "시에나"},
+            {no: 94, rgb: [191, 85, 64], hex: "#BF5540", eng: "Terracotta", name: "테라코타"},
+            {no: 95, rgb: [191, 64, 0], hex: "#BF4000", eng: "Rust", name: "녹슨 주황"},
+            {no: 96, rgb: [149, 106, 64], hex: "#956A40", eng: "Ochre", name: "황토색"},
+            {no: 97, rgb: [149, 85, 0], hex: "#955500", eng: "Brown", name: "갈색"},
+            {no: 98, rgb: [106, 42, 21], hex: "#6A2A15", eng: "Chocolate", name: "초콜릿색"},
+            {no: 99, rgb: [85, 21, 0], hex: "#551500", eng: "Espresso", name: "에스프레소"},
+            {no: 100, rgb: [191, 149, 106], hex: "#BF956A", eng: "Camel", name: "카멜색"},
+            {no: 101, rgb: [149, 128, 106], hex: "#95806A", eng: "Taupe", name: "회갈색"},
+            {no: 102, rgb: [128, 85, 64], hex: "#805540", eng: "Coffee", name: "커피색"},
+            {no: 103, rgb: [85, 42, 21], hex: "#552A15", eng: "Dark Chocolate", name: "다크 초콜릿"},
+            {no: 104, rgb: [128, 106, 85], hex: "#806A55", eng: "Walnut", name: "호두색"},
+            {no: 105, rgb: [85, 21, 21], hex: "#551515", eng: "Deep Brown", name: "진갈색"},
+            {no: 106, rgb: [128, 106, 64], hex: "#806A40", eng: "Bronze", name: "청동색"},
+            {no: 107, rgb: [64, 42, 21], hex: "#402A15", eng: "Dark Wood", name: "고목색"},
+            {no: 108, rgb: [42, 0, 0], hex: "#2A0000", eng: "Black Brown", name: "흑갈색"},
+            {no: 109, rgb: [212, 106, 85], hex: "#D46A55", eng: "Burnt Sienna", name: "타버린 시에나"},
+            {no: 110, rgb: [170, 149, 0], hex: "#AA9500", eng: "Mustard", name: "머스터드"},
+            {no: 111, rgb: [128, 170, 41], hex: "#80AA29", eng: "Sap Green", name: "수액 녹색"},
+            {no: 112, rgb: [255, 64, 128], hex: "#FF4080", eng: "Rose Red", name: "장미 빨강"},
+            {no: 113, rgb: [42, 254, 0], hex: "#2AFE00", eng: "Lime Green", name: "라임 그린"},
+            {no: 114, rgb: [191, 255, 21], hex: "#BFFF15", eng: "Chartreuse", name: "연두색"},
+            {no: 115, rgb: [191, 191, 191], hex: "#BFBFBF", eng: "Ash Gray", name: "애쉬 그레이"},
+            {no: 116, rgb: [128, 128, 128], hex: "#808080", eng: "Smoke Gray", name: "연기색 회색"},
+            {no: 117, rgb: [42, 42, 42], hex: "#2A2A2A", eng: "Graphite", name: "흑연색"},
+            {no: 118, rgb: [255, 255, 245], hex: "#FFFFF5", eng: "Off-white", name: "오프 화이트"},
+            {no: 119, rgb: [0, 0, 0], hex: "#000000", eng: "Pure Black", name: "순검정"},
+            {no: 120, rgb: null, hex: "-", eng: "Special Yarn", name: "특수사"}, /* 특수사 예외처리 */
+            {no: 121, rgb: [255, 212, 149], hex: "#FFD495", eng: "Light Peach", name: "밝은 복숭아색"},
+            {no: 122, rgb: [254, 191, 128], hex: "#FEBF80", eng: "Apricot Orange", name: "살구 주황"},
+            {no: 123, rgb: [212, 170, 85], hex: "#D4AA55", eng: "Golden Brown", name: "황금 갈색"},
+            {no: 124, rgb: [255, 170, 128], hex: "#FFAA80", eng: "Salmon Pink", name: "연어색 분홍"},
+            {no: 125, rgb: [255, 128, 128], hex: "#FF8080", eng: "Coral Red", name: "코랄 레드"},
+            {no: 126, rgb: [254, 254, 21], hex: "#FEFE15", eng: "Bright Yellow", name: "밝은 노랑"},
+            {no: 127, rgb: [170, 191, 21], hex: "#AABF15", eng: "Pear Green", name: "배색 녹색"},
+            {no: 128, rgb: [149, 128, 0], hex: "#958000", eng: "Olive", name: "올리브"},
+            {no: 129, rgb: [255, 191, 255], hex: "#FFBFFF", eng: "Pink Lavender", name: "핑크 라벤더"},
+            {no: 130, rgb: [21, 149, 128], hex: "#159580", eng: "Pine", name: "소나무 녹색"},
+            {no: 131, rgb: [254, 170, 85], hex: "#FEAA55", eng: "Orange Sorbet", name: "오렌지 샤베트"},
+            {no: 132, rgb: [170, 106, 21], hex: "#AA6A15", eng: "Copper", name: "구리색"},
+            {no: 133, rgb: [0, 212, 149], hex: "#00D495", eng: "Spring Green", name: "스프링 그린"},
+            {no: 134, rgb: [212, 149, 128], hex: "#D49580", eng: "Sandy Brown", name: "모래빛 갈색"},
+            {no: 135, rgb: [191, 128, 106], hex: "#BF806A", eng: "Wood Brown", name: "나무색 갈색"},
+            {no: 136, rgb: [128, 64, 21], hex: "#804015", eng: "Cinnamon", name: "시나몬"},
+            {no: 137, rgb: [191, 149, 128], hex: "#BF9580", eng: "Beige Brown", name: "베이지 갈색"},
+            {no: 138, rgb: [149, 106, 85], hex: "#956A55", eng: "Mud Brown", name: "진흙 갈색"},
+            {no: 139, rgb: [170, 106, 85], hex: "#AA6A55", eng: "Clay", name: "점토색"},
+            {no: 140, rgb: [191, 106, 106], hex: "#BF6A6A", eng: "Dusty Rose", name: "먼지 쌓인 장미색"},
+            {no: 141, rgb: [170, 85, 85], hex: "#AA5555", eng: "Indian Red", name: "인디언 레드"},
+            {no: 142, rgb: [212, 85, 128], hex: "#D45580", eng: "Berry", name: "베리색"},
+            {no: 143, rgb: [170, 149, 149], hex: "#AA9595", eng: "Taupe Rose", name: "토프 로즈"},
+            {no: 144, rgb: [42, 0, 0], hex: "#2A0000", eng: "Deepest Espresso", name: "가장 깊은 에스프레소"},
+            {no: 145, rgb: [149, 106, 0], hex: "#956A00", eng: "Raw Umber", name: "생 엄버색"}
+        ];
+
+        let isZoomedIn = false;
+        let showNumbers = true;
+        let isShowingOriginal = false; // 원본 보기 상태 변수
+        let originalImageObj = null; // 원본 이미지 객체 보관용
+        let cachedGridData = null; 
+        const BLOCK_SIZE = 25;
+
+        // UI 이벤트 처리
+        function updateFileName() {
+            const input = document.getElementById('imageInput');
+            const nameDisplay = document.getElementById('fileName');
+            if (input.files.length > 0) {
+                nameDisplay.innerText = input.files[0].name;
+            } else {
+                nameDisplay.innerText = "선택된 파일 없음";
+            }
+        }
+
+        function toggleColorLimitInput() {
+            const check = document.getElementById('limitColorsCheck');
+            const wrapper = document.getElementById('colorLimitWrapper');
+            wrapper.style.display = check.checked ? 'inline-block' : 'none';
+        }
+
+        function toggleLegend() {
+            const legendContainer = document.getElementById('legendContainer');
+            const btn = document.getElementById('toggleLegendBtn');
+            const legendWrapper = document.getElementById('legendWrapper');
+
+            if (legendContainer.style.display === 'none') {
+                legendContainer.style.display = 'block';
+                legendWrapper.style.width = '300px';
+                btn.innerText = '컬러 목록 닫기 ❯';
+            } else {
+                legendContainer.style.display = 'none';
+                legendWrapper.style.width = '100px';
+                btn.innerText = '❮ 열기';
+            }
+        }
+
+        function toggleZoom() {
+            const canvas = document.getElementById('resultCanvas');
+            const btn = document.getElementById('zoomBtn');
+            isZoomedIn = !isZoomedIn;
+            
+            if (isZoomedIn) {
+                canvas.classList.add('zoomed-in');
+                btn.innerText = '🔍 화면에 맞추기';
+            } else {
+                canvas.classList.remove('zoomed-in');
+                btn.innerText = '🔍 원본 크기로 보기';
+            }
+        }
+
+        function toggleNumbers() {
+            const btn = document.getElementById('numberBtn');
+            showNumbers = !showNumbers;
+            btn.innerText = showNumbers ? '🔢 번호 끄기' : '🔢 번호 켜기';
+            
+            // 원본 보기가 아닐 때만 도안을 다시 그림
+            if (!isShowingOriginal && cachedGridData) {
+                drawCanvasFromCache(); 
+            }
+        }
+
+        // 원본 보기 토글 함수
+        function toggleOriginalView() {
+            const btn = document.getElementById('originalViewBtn');
+            const numberBtn = document.getElementById('numberBtn');
+            isShowingOriginal = !isShowingOriginal;
+
+            if (isShowingOriginal) {
+                btn.innerText = '🎨 작업 도안 보기';
+                btn.classList.add('active');
+                numberBtn.disabled = true; // 원본보기 중엔 번호 토글 잠금
+                numberBtn.style.opacity = '0.5';
+                drawOriginalImage();
+            } else {
+                btn.innerText = '🖼️ 원본 보기';
+                btn.classList.remove('active');
+                numberBtn.disabled = false; // 도안보기 상태에선 번호 토글 해제
+                numberBtn.style.opacity = '1';
+                drawCanvasFromCache();
+            }
+        }
+
+        // 유틸리티 함수
+        function calculateDistance(rgb1, rgb2) {
+            if (!rgb1 || !rgb2) return Infinity;
+            return Math.sqrt(Math.pow(rgb1[0] - rgb2[0], 2) + Math.pow(rgb1[1] - rgb2[1], 2) + Math.pow(rgb1[2] - rgb2[2], 2));
+        }
+
+        function findClosestDarinThread(targetRgb, threadList) {
+            let minDist = Infinity;
+            let closestThread = null;
+            for (let thread of threadList) {
+                if (!thread.rgb) continue; // 특수사(null) 건너뛰기
+                let dist = calculateDistance(targetRgb, thread.rgb);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestThread = thread;
+                }
+            }
+            return closestThread;
+        }
+
+        function getTextColorForBackground(bgRgb) {
+            let luminance = (0.299 * bgRgb[0] + 0.587 * bgRgb[1] + 0.114 * bgRgb[2]);
+            return luminance > 128 ? '#222222' : '#ffffff';
+        }
+
+        function triggerAnimations() {
+            const canvasContainer = document.getElementById('canvasContainer');
+            const legendWrapper = document.getElementById('legendWrapper');
+
+            canvasContainer.classList.remove('animate-canvas');
+            legendWrapper.classList.remove('animate-sidebar');
+            void canvasContainer.offsetWidth; 
+            void legendWrapper.offsetWidth;
+            canvasContainer.classList.add('animate-canvas');
+            legendWrapper.classList.add('animate-sidebar');
+        }
+
+        // 핵심 실행 로직
+        function processImage() {
+            const fileInput = document.getElementById('imageInput');
+            const gridSizeInput = document.getElementById('gridSize');
+            const useColorLimit = document.getElementById('limitColorsCheck').checked;
+            
+            let maxColors = parseInt(document.getElementById('colorLimit').value) || 15;
+            if (maxColors < 5) maxColors = 5;
+            if (maxColors > 145) maxColors = 145;
+            
+            if (fileInput.files.length === 0) {
+                alert('📁 먼저 이미지를 선택해주세요!');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // 원본 이미지 저장
+                    originalImageObj = img;
+
+                    // UI 초기화
+                    document.getElementById('placeholder').style.display = 'none';
+                    document.getElementById('resultCanvas').style.display = 'block';
+                    document.getElementById('canvasToolbar').style.display = 'flex';
+                    
+                    // 토글 상태들 초기화
+                    isZoomedIn = false;
+                    document.getElementById('resultCanvas').classList.remove('zoomed-in');
+                    document.getElementById('zoomBtn').innerText = '🔍 원본 크기로 보기';
+                    
+                    isShowingOriginal = false;
+                    document.getElementById('originalViewBtn').innerText = '🖼️ 원본 보기';
+                    document.getElementById('originalViewBtn').classList.remove('active');
+                    document.getElementById('numberBtn').disabled = false;
+                    document.getElementById('numberBtn').style.opacity = '1';
+                    
+                    const stitchesWidth = parseInt(gridSizeInput.value);
+                    const aspectRatio = img.height / img.width;
+                    const stitchesHeight = Math.round(stitchesWidth * aspectRatio);
+
+                    // 픽셀화를 위한 임시 캔버스 그리기
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = stitchesWidth;
+                    tempCanvas.height = stitchesHeight;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(img, 0, 0, stitchesWidth, stitchesHeight);
+                    const imgData = tempCtx.getImageData(0, 0, stitchesWidth, stitchesHeight).data;
+
+                    let allowedThreads = darinThreads;
+
+                    // 컬러 수 제한 적용
+                    if (useColorLimit) {
+                        let freqMap = new Map();
+                        for (let i = 0; i < imgData.length; i += 4) {
+                            let r = imgData[i], g = imgData[i+1], b = imgData[i+2];
+                            let closest = findClosestDarinThread([r, g, b], darinThreads);
+                            freqMap.set(closest.no, (freqMap.get(closest.no) || 0) + 1);
+                        }
+                        let sortedFreq = Array.from(freqMap.entries()).sort((a, b) => b[1] - a[1]);
+                        let topThreadNos = sortedFreq.slice(0, maxColors).map(entry => entry[0]);
+                        allowedThreads = darinThreads.filter(t => topThreadNos.includes(t.no));
+                    }
+
+                    const usedThreads = new Map();
+                    cachedGridData = {
+                        width: stitchesWidth,
+                        height: stitchesHeight,
+                        cells: []
+                    };
+
+                    // 픽셀 데이터 연산 (캐싱)
+                    for (let y = 0; y < stitchesHeight; y++) {
+                        for (let x = 0; x < stitchesWidth; x++) {
+                            const index = (y * stitchesWidth + x) * 4;
+                            const r = imgData[index];
+                            const g = imgData[index + 1];
+                            const b = imgData[index + 2];
+                            
+                            const closest = findClosestDarinThread([r, g, b], allowedThreads);
+                            if (!usedThreads.has(closest.no)) usedThreads.set(closest.no, closest);
+                            
+                            cachedGridData.cells.push({ x: x, y: y, thread: closest });
+                        }
+                    }
+
+                    drawCanvasFromCache();
+                    
+                    const legendWrapper = document.getElementById('legendWrapper');
+                    legendWrapper.style.display = 'flex';
+                    document.getElementById('legendContainer').style.display = 'block';
+                    legendWrapper.style.width = '300px';
+                    document.getElementById('toggleLegendBtn').innerText = '컬러 목록 닫기 ❯';
+                    
+                    renderColorLegend(usedThreads);
+                    triggerAnimations();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 캐시 데이터로 도안 그리기
+        function drawCanvasFromCache() {
+            if (!cachedGridData) return;
+            
+            const canvas = document.getElementById('resultCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = cachedGridData.width * BLOCK_SIZE;
+            canvas.height = cachedGridData.height * BLOCK_SIZE;
+
+            ctx.font = '500 11px Pretendard, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            cachedGridData.cells.forEach(cell => {
+                const tRgb = cell.thread.rgb;
+                const px = cell.x * BLOCK_SIZE;
+                const py = cell.y * BLOCK_SIZE;
+
+                ctx.fillStyle = `rgb(${tRgb[0]}, ${tRgb[1]}, ${tRgb[2]})`;
+                ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+                
+                ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+                ctx.strokeRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+                
+                if (showNumbers) {
+                    ctx.fillStyle = getTextColorForBackground(tRgb);
+                    ctx.fillText(cell.thread.no, px + (BLOCK_SIZE / 2), py + (BLOCK_SIZE / 2) + 1);
+                }
+            });
+        }
+
+        // 원본 이미지를 캔버스 크기에 맞춰서 그려주기
+        function drawOriginalImage() {
+            if (!originalImageObj || !cachedGridData) return;
+            
+            const canvas = document.getElementById('resultCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 캔버스 크기를 도안 크기(캐시 크기)로 맞춰서 원본 이미지 오버랩
+            canvas.width = cachedGridData.width * BLOCK_SIZE;
+            canvas.height = cachedGridData.height * BLOCK_SIZE;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
+        }
+
+        // 오른쪽 컬러 범례 그리기 (영문명도 함께 표시)
+        function renderColorLegend(usedThreads) {
+            const colorListDiv = document.getElementById('colorList');
+            const colorCountSpan = document.getElementById('colorCount');
+            colorListDiv.innerHTML = '';
+
+            const sortedThreads = Array.from(usedThreads.values()).sort((a, b) => a.no - b.no);
+            colorCountSpan.innerText = sortedThreads.length;
+
+            sortedThreads.forEach(thread => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'color-item';
+
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                if (thread.rgb) {
+                    colorBox.style.backgroundColor = thread.hex; // 이제 HEX 값도 적용 가능!
+                } else {
+                    colorBox.style.backgroundColor = '#ccc'; // 특수사 처리
+                }
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'color-info';
+                
+                // 한글 이름 아래에 작은 영문 이름 추가
+                infoDiv.innerHTML = `
+                    <div><span class="color-no">No.${thread.no}</span> ${thread.name}</div>
+                    <span class="color-eng">${thread.eng}</span>
+                `;
+
+                itemDiv.appendChild(colorBox);
+                itemDiv.appendChild(infoDiv);
+                colorListDiv.appendChild(itemDiv);
+            });
+        }
+    </script>
+</body>
+</html>
