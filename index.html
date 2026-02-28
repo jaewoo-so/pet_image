@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💜 다린크래프트 펫자수 도안 메이커</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💜 다린크래프트 자수 도안 메이커</title>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <style>
         /* 기본 테마 설정 */
@@ -27,6 +27,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -35,6 +36,7 @@
             font-weight: 700;
             letter-spacing: -0.5px;
             text-shadow: 1px 1px 2px rgba(142, 98, 168, 0.15);
+            text-align: center;
         }
 
         /* --- 상단 컨트롤 패널 --- */
@@ -74,6 +76,7 @@
             font-weight: 600;
             transition: all 0.2s;
             font-size: 14px;
+            text-align: center;
         }
 
         .file-upload-label:hover {
@@ -119,6 +122,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-weight: 600;
+            box-sizing: border-box;
         }
 
         button.primary-btn {
@@ -176,6 +180,8 @@
             align-items: center;
             min-height: 400px;
             min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .canvas-toolbar {
@@ -211,11 +217,16 @@
 
         /* 오른쪽 사이드바 */
         .legend-wrapper {
-            width: 300px;
+            width: 300px; /* PC 기본 너비 */
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .legend-wrapper.closed {
+            width: 130px; /* PC에서 닫혔을 때 너비 */
         }
 
         .legend-container {
@@ -257,7 +268,7 @@
             border: 1px solid rgba(0,0,0,0.1);
             margin-right: 12px;
             box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
-            flex-shrink: 0; /* 박스가 찌그러지지 않게 */
+            flex-shrink: 0;
         }
 
         .color-info {
@@ -285,17 +296,79 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes slideRightFade {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
         .animate-canvas { animation: slideUpFade 0.5s ease forwards; }
-        .animate-sidebar { animation: slideRightFade 0.5s ease forwards; }
+        .animate-sidebar { animation: slideUpFade 0.5s ease forwards; }
+
+        /* ========================================================= */
+        /* 모바일 반응형 디자인 (화면 너비 768px 이하일 때 적용) */
+        /* ========================================================= */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .controls {
+                flex-direction: column; /* 세로 배치 */
+                align-items: stretch;
+                padding: 15px;
+                gap: 12px;
+            }
+
+            .control-group {
+                width: 100%;
+                justify-content: space-between; /* 양쪽 정렬 */
+            }
+
+            #fileName {
+                max-width: 40%;
+                text-align: right;
+            }
+
+            button.primary-btn {
+                margin-left: 0;
+                width: 100%;
+                padding: 12px;
+                margin-top: 5px;
+            }
+
+            .main-container {
+                flex-direction: column; /* 도안 밑에 컬러 목록 오도록 세로 배치 */
+            }
+
+            .canvas-container {
+                padding: 15px;
+                min-height: 300px;
+            }
+
+            .canvas-toolbar {
+                flex-wrap: wrap; /* 버튼이 많으면 다음 줄로 넘어가도록 */
+                justify-content: center;
+            }
+
+            .canvas-toolbar button {
+                flex: 1 1 30%; /* 버튼이 공간을 고르게 차지하도록 */
+                font-size: 13px;
+                padding: 8px 5px;
+            }
+
+            /* 모바일에선 범례 너비를 100%로 변경 */
+            .legend-wrapper, .legend-wrapper.closed {
+                width: 100%; 
+            }
+
+            .legend-container {
+                max-height: 50vh; /* 모바일에서는 높이를 조금 줄임 */
+            }
+        }
     </style>
 </head>
 <body>
 
-    <h1>💜 다린크래프트 펫자수 도안 메이커</h1>
+    <h1>💜 자수 도안 메이커</h1>
     
     <div class="controls">
         <div class="control-group">
@@ -308,15 +381,15 @@
 
         <div class="control-group">
             <label>📏 가로 격자:</label>
-            <input type="number" id="gridSize" value="40" min="10" max="200">
+            <input type="number" id="gridSize" value="40" min="10" max="200" style="width: 70px;">
         </div>
         
-        <div class="control-group" style="background-color: var(--bg-color); padding: 5px 12px; border-radius: 8px;">
-            <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+        <div class="control-group" style="background-color: var(--bg-color); padding: 8px 12px; border-radius: 8px;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; width: 100%;">
                 <input type="checkbox" id="limitColorsCheck" onchange="toggleColorLimitInput()"> 
                 컬러 수 제한
             </label>
-            <span id="colorLimitWrapper" style="display: none;">
+            <span id="colorLimitWrapper" style="display: none; white-space: nowrap;">
                 <input type="number" id="colorLimit" value="15" min="5" max="145" style="width: 50px;"> 개
             </span>
         </div>
@@ -329,10 +402,10 @@
             <div class="canvas-toolbar" id="canvasToolbar" style="display: none;">
                 <button class="toggle-btn" id="originalViewBtn" onclick="toggleOriginalView()">🖼️ 원본 보기</button>
                 <button class="toggle-btn" id="numberBtn" onclick="toggleNumbers()">🔢 번호 끄기</button>
-                <button class="toggle-btn" id="zoomBtn" onclick="toggleZoom()">🔍 원본 크기로 보기</button>
+                <button class="toggle-btn" id="zoomBtn" onclick="toggleZoom()">🔍 확대 보기</button>
             </div>
             
-            <p id="placeholder" style="color:var(--text-muted); text-align:center; margin-top:150px; font-weight: 500;">
+            <p id="placeholder" style="color:var(--text-muted); text-align:center; margin-top:100px; font-weight: 500;">
                 이미지를 업로드하고 생성 버튼을 눌러주세요 🎨
             </p>
             
@@ -342,8 +415,8 @@
         </div>
 
         <div class="legend-wrapper" id="legendWrapper" style="display: none;">
-            <button class="toggle-btn" id="toggleLegendBtn" onclick="toggleLegend()" style="width: 100%; text-align: left; border-color: transparent; background-color: var(--bg-color);">
-                컬러 목록 닫기 ❯
+            <button class="toggle-btn" id="toggleLegendBtn" onclick="toggleLegend()" style="width: 100%; text-align: center; border-color: transparent; background-color: var(--bg-color);">
+                🎨 컬러 목록 닫기
             </button>
             <div class="legend-container" id="legendContainer">
                 <h2>🎨 사용된 컬러 (<span id="colorCount">0</span>개)</h2>
@@ -353,7 +426,7 @@
     </div>
 
     <script>
-        // 새로 업데이트된 145번까지의 풀 데이터베이스
+        // 145번까지의 풀 데이터베이스
         const darinThreads = [
             {no: 1, rgb: [255, 255, 255], hex: "#FFFFFF", eng: "Pure White", name: "순백색"},
             {no: 2, rgb: [191, 149, 255], hex: "#BF95FF", eng: "Light Lavender", name: "연라벤더"},
@@ -474,7 +547,7 @@
             {no: 117, rgb: [42, 42, 42], hex: "#2A2A2A", eng: "Graphite", name: "흑연색"},
             {no: 118, rgb: [255, 255, 245], hex: "#FFFFF5", eng: "Off-white", name: "오프 화이트"},
             {no: 119, rgb: [0, 0, 0], hex: "#000000", eng: "Pure Black", name: "순검정"},
-            {no: 120, rgb: null, hex: "-", eng: "Special Yarn", name: "특수사"}, /* 특수사 예외처리 */
+            {no: 120, rgb: null, hex: "-", eng: "Special Yarn", name: "특수사"},
             {no: 121, rgb: [255, 212, 149], hex: "#FFD495", eng: "Light Peach", name: "밝은 복숭아색"},
             {no: 122, rgb: [254, 191, 128], hex: "#FEBF80", eng: "Apricot Orange", name: "살구 주황"},
             {no: 123, rgb: [212, 170, 85], hex: "#D4AA55", eng: "Golden Brown", name: "황금 갈색"},
@@ -504,8 +577,8 @@
 
         let isZoomedIn = false;
         let showNumbers = true;
-        let isShowingOriginal = false; // 원본 보기 상태 변수
-        let originalImageObj = null; // 원본 이미지 객체 보관용
+        let isShowingOriginal = false;
+        let originalImageObj = null; 
         let cachedGridData = null; 
         const BLOCK_SIZE = 25;
 
@@ -526,19 +599,20 @@
             wrapper.style.display = check.checked ? 'inline-block' : 'none';
         }
 
+        // 패널 여닫기 방식 변경 (CSS 클래스로 토글)
         function toggleLegend() {
             const legendContainer = document.getElementById('legendContainer');
             const btn = document.getElementById('toggleLegendBtn');
             const legendWrapper = document.getElementById('legendWrapper');
 
-            if (legendContainer.style.display === 'none') {
-                legendContainer.style.display = 'block';
-                legendWrapper.style.width = '300px';
-                btn.innerText = '컬러 목록 닫기 ❯';
-            } else {
+            legendWrapper.classList.toggle('closed');
+
+            if (legendWrapper.classList.contains('closed')) {
                 legendContainer.style.display = 'none';
-                legendWrapper.style.width = '100px';
-                btn.innerText = '❮ 열기';
+                btn.innerText = '🎨 컬러 목록 열기';
+            } else {
+                legendContainer.style.display = 'block';
+                btn.innerText = '🎨 컬러 목록 닫기';
             }
         }
 
@@ -552,7 +626,7 @@
                 btn.innerText = '🔍 화면에 맞추기';
             } else {
                 canvas.classList.remove('zoomed-in');
-                btn.innerText = '🔍 원본 크기로 보기';
+                btn.innerText = '🔍 확대 보기';
             }
         }
 
@@ -561,13 +635,11 @@
             showNumbers = !showNumbers;
             btn.innerText = showNumbers ? '🔢 번호 끄기' : '🔢 번호 켜기';
             
-            // 원본 보기가 아닐 때만 도안을 다시 그림
             if (!isShowingOriginal && cachedGridData) {
                 drawCanvasFromCache(); 
             }
         }
 
-        // 원본 보기 토글 함수
         function toggleOriginalView() {
             const btn = document.getElementById('originalViewBtn');
             const numberBtn = document.getElementById('numberBtn');
@@ -576,19 +648,19 @@
             if (isShowingOriginal) {
                 btn.innerText = '🎨 작업 도안 보기';
                 btn.classList.add('active');
-                numberBtn.disabled = true; // 원본보기 중엔 번호 토글 잠금
+                numberBtn.disabled = true;
                 numberBtn.style.opacity = '0.5';
                 drawOriginalImage();
             } else {
                 btn.innerText = '🖼️ 원본 보기';
                 btn.classList.remove('active');
-                numberBtn.disabled = false; // 도안보기 상태에선 번호 토글 해제
+                numberBtn.disabled = false;
                 numberBtn.style.opacity = '1';
                 drawCanvasFromCache();
             }
         }
 
-        // 유틸리티 함수
+        // 유틸리티
         function calculateDistance(rgb1, rgb2) {
             if (!rgb1 || !rgb2) return Infinity;
             return Math.sqrt(Math.pow(rgb1[0] - rgb2[0], 2) + Math.pow(rgb1[1] - rgb2[1], 2) + Math.pow(rgb1[2] - rgb2[2], 2));
@@ -598,7 +670,7 @@
             let minDist = Infinity;
             let closestThread = null;
             for (let thread of threadList) {
-                if (!thread.rgb) continue; // 특수사(null) 건너뛰기
+                if (!thread.rgb) continue; 
                 let dist = calculateDistance(targetRgb, thread.rgb);
                 if (dist < minDist) {
                     minDist = dist;
@@ -625,7 +697,6 @@
             legendWrapper.classList.add('animate-sidebar');
         }
 
-        // 핵심 실행 로직
         function processImage() {
             const fileInput = document.getElementById('imageInput');
             const gridSizeInput = document.getElementById('gridSize');
@@ -646,18 +717,15 @@
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    // 원본 이미지 저장
                     originalImageObj = img;
 
-                    // UI 초기화
                     document.getElementById('placeholder').style.display = 'none';
                     document.getElementById('resultCanvas').style.display = 'block';
                     document.getElementById('canvasToolbar').style.display = 'flex';
                     
-                    // 토글 상태들 초기화
                     isZoomedIn = false;
                     document.getElementById('resultCanvas').classList.remove('zoomed-in');
-                    document.getElementById('zoomBtn').innerText = '🔍 원본 크기로 보기';
+                    document.getElementById('zoomBtn').innerText = '🔍 확대 보기';
                     
                     isShowingOriginal = false;
                     document.getElementById('originalViewBtn').innerText = '🖼️ 원본 보기';
@@ -669,7 +737,6 @@
                     const aspectRatio = img.height / img.width;
                     const stitchesHeight = Math.round(stitchesWidth * aspectRatio);
 
-                    // 픽셀화를 위한 임시 캔버스 그리기
                     const tempCanvas = document.createElement('canvas');
                     tempCanvas.width = stitchesWidth;
                     tempCanvas.height = stitchesHeight;
@@ -679,7 +746,6 @@
 
                     let allowedThreads = darinThreads;
 
-                    // 컬러 수 제한 적용
                     if (useColorLimit) {
                         let freqMap = new Map();
                         for (let i = 0; i < imgData.length; i += 4) {
@@ -699,7 +765,6 @@
                         cells: []
                     };
 
-                    // 픽셀 데이터 연산 (캐싱)
                     for (let y = 0; y < stitchesHeight; y++) {
                         for (let x = 0; x < stitchesWidth; x++) {
                             const index = (y * stitchesWidth + x) * 4;
@@ -719,8 +784,8 @@
                     const legendWrapper = document.getElementById('legendWrapper');
                     legendWrapper.style.display = 'flex';
                     document.getElementById('legendContainer').style.display = 'block';
-                    legendWrapper.style.width = '300px';
-                    document.getElementById('toggleLegendBtn').innerText = '컬러 목록 닫기 ❯';
+                    legendWrapper.classList.remove('closed'); // PC/모바일 상관없이 새로 만들면 일단 펼침
+                    document.getElementById('toggleLegendBtn').innerText = '🎨 컬러 목록 닫기';
                     
                     renderColorLegend(usedThreads);
                     triggerAnimations();
@@ -730,7 +795,6 @@
             reader.readAsDataURL(file);
         }
 
-        // 캐시 데이터로 도안 그리기
         function drawCanvasFromCache() {
             if (!cachedGridData) return;
             
@@ -762,14 +826,12 @@
             });
         }
 
-        // 원본 이미지를 캔버스 크기에 맞춰서 그려주기
         function drawOriginalImage() {
             if (!originalImageObj || !cachedGridData) return;
             
             const canvas = document.getElementById('resultCanvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기를 도안 크기(캐시 크기)로 맞춰서 원본 이미지 오버랩
             canvas.width = cachedGridData.width * BLOCK_SIZE;
             canvas.height = cachedGridData.height * BLOCK_SIZE;
 
@@ -777,7 +839,6 @@
             ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
         }
 
-        // 오른쪽 컬러 범례 그리기 (영문명도 함께 표시)
         function renderColorLegend(usedThreads) {
             const colorListDiv = document.getElementById('colorList');
             const colorCountSpan = document.getElementById('colorCount');
@@ -793,15 +854,14 @@
                 const colorBox = document.createElement('div');
                 colorBox.className = 'color-box';
                 if (thread.rgb) {
-                    colorBox.style.backgroundColor = thread.hex; // 이제 HEX 값도 적용 가능!
+                    colorBox.style.backgroundColor = thread.hex; 
                 } else {
-                    colorBox.style.backgroundColor = '#ccc'; // 특수사 처리
+                    colorBox.style.backgroundColor = '#ccc'; 
                 }
 
                 const infoDiv = document.createElement('div');
                 infoDiv.className = 'color-info';
                 
-                // 한글 이름 아래에 작은 영문 이름 추가
                 infoDiv.innerHTML = `
                     <div><span class="color-no">No.${thread.no}</span> ${thread.name}</div>
                     <span class="color-eng">${thread.eng}</span>
